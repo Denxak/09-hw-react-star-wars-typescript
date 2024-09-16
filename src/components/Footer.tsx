@@ -1,5 +1,3 @@
-import React from 'react'
-
 const Footer = () => {
     return (
         <footer className="clear-both rounded-b-3xl bg-grey-color grid grid-cols-8 mx-0 align-items-center py-4">

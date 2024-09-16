@@ -1,17 +1,31 @@
 import { useEffect, useState } from 'react'
-import { base_url, period_month } from '../utils/constants'
+import { characters, period_month } from '../utils/constants'
 import { HeroInfo } from '../utils/types';
+import { useParams } from 'react-router-dom';
 
 const AboutMe = () => {
   const [hero, setHero] = useState<HeroInfo>();
+  const { heroid } = useParams();
 
   useEffect(() => {
-    const hero = JSON.parse(localStorage.getItem('hero')!);
+
+    //Option 1
+    // let currentHeroId = heroid ?? 'luke';
+    // if (!characters[heroid as keyof typeof characters] ) {
+    //   currentHeroId = 'luke';
+    // }
+
+    //Option 2
+    const defaultHeroId = Object.keys(characters)[0];
+    const currentHeroId = heroid && characters[heroid as keyof typeof characters] ? heroid : defaultHeroId;
+
+    const selectedHero = characters[currentHeroId as keyof typeof characters];
+    const hero = JSON.parse(localStorage.getItem(currentHeroId)!);
     if (hero && ((Date.now() - hero.time) < period_month)) {
       setHero(hero.payload)
     }
     else {
-      fetch(`${base_url}/v1/peoples/1`)
+      fetch(selectedHero.url)
         .then(response => response.json())
         .then(data => {
           const info = {
@@ -25,13 +39,14 @@ const AboutMe = () => {
             eye_color: data.eye_color
           }
           setHero(info);
-          localStorage.setItem('hero', JSON.stringify({
+          localStorage.setItem(currentHeroId, JSON.stringify({
             time: Date.now(),
             payload: info
           }))
         })
     }
-  }, [])
+    return () => console.log(`Component about me unmounted!`);
+  }, [heroid])
 
   return (
     <>
